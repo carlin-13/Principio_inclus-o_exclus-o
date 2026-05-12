@@ -1,0 +1,1290 @@
+---
+title: "Introdução à Ciência de Dados"
+subtitle: "Aula 3 - Laboratório: primeiros passos em R"
+author: Matheus B. Guerrero, Ph.D.
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    code-overflow: wrap
+    scrollable: true
+    css: styles.css
+execute:
+  echo: true
+  eval: false
+---
+
+## Aula de hoje
+
+```{=html}
+<style>
+.reveal .slide {
+  font-size: 0.82em;
+}
+.reveal .callout {
+  font-size: 0.78em;
+}
+.reveal pre code {
+  max-height: 430px;
+}
+</style>
+```
+
+Nesta aula, vamos construir um fluxo mínimo de trabalho em `R`:
+
+-   Abrir e reconhecer o `RStudio`;
+-   Criar um projeto;
+-   Escrever código em scripts;
+-   Criar objetos, vetores e `data frames`;
+-   Inspecionar uma base pela primeira vez;
+-   Organizar arquivos com nomes e caminhos reprodutíveis.
+
+::: callout-note
+A regra da aula: nada de apenas assistir. Execute os comandos no computador.
+:::
+
+------------------------------------------------------------------------
+
+## Por que começar pelo `R`?
+
+O `R` é uma das portas de entrada mais adequadas para Ciência de Dados porque ele:
+
+-   É livre e gratuito;
+-   É voltado a estatística, dados e visualização;
+-   Possui ampla comunidade;
+-   É interpretado: o código pode ser executado linha por linha;
+-   Permite reprodutibilidade por scripts.
+
+::: callout-tip
+Hoje vamos trocar a lógica “clicar e esquecer” pela lógica “escrever, salvar e reproduzir”.
+:::
+
+------------------------------------------------------------------------
+
+## `R` não é `RStudio`
+
+| Ferramenta       | Papel                                 |
+|------------------|---------------------------------------|
+| `R`              | linguagem e interpretador             |
+| `RStudio`        | ambiente integrado de desenvolvimento |
+| Script `.R`      | arquivo com comandos reproduzíveis    |
+| Projeto `.Rproj` | pasta organizada para uma análise     |
+
+-   O `RStudio` não substitui o `R`, ele organiza o trabalho com o `R`;
+-   O script registra o procedimento;
+-   O projeto organiza scripts, dados e saídas.
+
+::: callout-warning
+Erros comuns: instalar apenas o RStudio, trabalhar só no Console ou salvar arquivos fora do projeto.
+:::
+
+------------------------------------------------------------------------
+
+## Boas práticas: instalação e organização
+
+-   Instale `R` primeiro e `RStudio` depois, mantenha-os atualizados;
+-   Instale pacotes só quando forem realmente necessários;
+-   Evite espalhar arquivos de aula em muitas pastas diferentes;
+-   Use um projeto para cada análise ou atividade;
+-   Dê nomes claros para scripts e pastas.
+
+**Como instalar pacotes manualmente?**
+
+```{r}
+install.packages("tidyverse")
+library("tidyverse")
+installed.packages()[, 1]
+```
+
+::: callout-tip
+Organização desde o começo evita três problemas muito comuns: arquivos perdidos, scripts difíceis de reproduzir e pacotes instalados sem controle.
+:::
+
+------------------------------------------------------------------------
+
+## Configuração mínima para trabalhar de forma reprodutível
+
+No `RStudio`, configure:
+
+-   Não restaurar `.RData` ao iniciar;
+-   Não salvar workspace ao sair;
+-   Trabalhar sempre dentro de um projeto;
+-   Manter scripts, dados e saídas em pastas separadas.
+
+::: callout-important
+O objetivo é que os resultados venham do **script**, não da memória da sessão anterior.
+:::
+
+------------------------------------------------------------------------
+
+## Desabilitando restauração automática
+
+No `RStudio`:
+
+`Tools` \> `Global Options` \> `General`
+
+**Configurar:**
+
+-   Restore `.RData` into workspace at startup: *`desmarcado`*;
+-   Save workspace to `.RData` on exit: *`Never`*.
+
+------------------------------------------------------------------------
+
+## Reconhecendo a interface do `RStudio`
+
+Abra o `RStudio` e localize:
+
+-   **Source**: onde escrevemos scripts;
+-   **Console**: onde o `R` executa comandos;
+-   **Environment**: objetos criados na sessão;
+-   **Files / Plots / Packages / Help**: arquivos, gráficos, pacotes e ajuda.
+
+::: callout-warning
+Se você só usa o Console, seu trabalho desaparece facilmente. Se usa scripts, seu trabalho vira registro.
+:::
+
+------------------------------------------------------------------------
+
+## Primeiro princípio do laboratório
+
+> O script é a fonte da verdade.
+
+-   No Console, testamos rapidamente;
+-   No script, guardamos o procedimento.
+
+**Um script deve registrar:**
+
+-   Pacotes usados;
+-   Criação ou importação dos dados;
+-   Preparação dos dados;
+-   Cálculos e análises;
+-   Salvamento das saídas.
+
+------------------------------------------------------------------------
+
+## Criando um projeto
+
+No RStudio:
+
+1.  `File` \> `New Project` \> `New Directory` \> `New Project`;
+2.  Nome: `aula03-primeiros-passos-r`;
+3.  Criar em uma pasta fácil de encontrar.
+
+Depois de criado, rode no Console: `getwd()`
+
+**Por que usar projeto?**
+
+-   Define a pasta principal da análise;
+-   Permite usar caminhos relativos;
+-   Facilita reproduzir a análise em outro computador;
+-   Mantém scripts, dados e saídas no mesmo lugar.
+
+------------------------------------------------------------------------
+
+## Estrutura mínima do projeto
+
+Crie esta estrutura no painel Files:
+
+``` text
+aula03-primeiros-passos-r/
+├── aula03-primeiros-passos-r.Rproj
+├── data/
+│   ├── dados-planilha.xlsx
+│   ├── dados-spss.sav
+│   └── dados-r.rds
+├── outputs/
+│   ├── figures/
+│   ├── tables/
+│   ├── reports/
+│   └── other/
+└── scripts/
+    └── 01-primeiros-passos.R
+```
+
+::: callout-tip
+Um projeto deve conseguir “carregar consigo” scripts, dados e saídas.
+:::
+
+------------------------------------------------------------------------
+
+## Caminhos relativos
+
+Evite isto: `"C:/Users/Matheus/Desktop/aula03/data/base.csv"`
+
+Prefira isto: `"data/base.csv"`
+
+Dentro de um projeto, teste:
+
+```{r}
+getwd()
+list.files()
+file.exists("data/base.csv")
+```
+
+::: callout-note
+Caminhos relativos funcionam dentro do projeto, mesmo que a pasta mude de computador.
+:::
+
+::: callout-warning
+Evite usar `setwd()` dentro do script. O projeto já deve definir a pasta de trabalho.
+:::
+
+------------------------------------------------------------------------
+
+## Criando o primeiro script
+
+No `RStudio`:
+
+1.  File \> New File \> `R` Script;
+2.  Salve como scripts/01-primeiros-comandos.R;
+3.  Escreva um cabeçalho.
+
+```{r}
+##################################################
+# Aula 3: Primeiros passos em R                  #
+# Objetivo: criar objetos, vetores e data frames #
+# Autor(a): escreva seu nome                     #
+# Data: escreva a data de hoje                   #
+##################################################
+
+# 1. Pacotes -------------------------------------------------------------
+# 2. Funções Próprias ----------------------------------------------------
+# 3. Objetos Simples, Vetores e Data frame -------------------------------
+# 4. Importação e Inspeção de Dados -------------------------------------
+# 5. Modelos -------------------------------------------------------------
+# 6. Saídas --------------------------------------------------------------
+```
+
+------------------------------------------------------------------------
+
+## Estrutura de um script reprodutível
+
+Um bom script costuma ter:
+
+1.  Cabeçalho;
+2.  Pacotes utilizados;
+3.  Funções próprias;
+4.  Criação ou importação dos dados;
+5.  Preparação dos dados;
+6.  Análise;
+7.  Salvamento das saídas.
+
+------------------------------------------------------------------------
+
+## Executando código do script
+
+Atalho essencial.
+
+No Windows:
+
+`Ctrl + Enter`
+
+No Mac:
+
+`Cmd + Enter`
+
+1.  Coloque o cursor em uma linha;
+2.  Pressione o atalho;
+3.  Observe o Console;
+4.  Observe o Environment.
+
+------------------------------------------------------------------------
+
+## Outros atalhos úteis
+
+| Ação                 | Windows            | Mac               |
+|----------------------|--------------------|-------------------|
+| Salvar script        | `Ctrl + S`         | `Cmd + S`         |
+| Comentar/descomentar | `Ctrl + Shift + C` | `Cmd + Shift + C` |
+| Autocompletar        | `Tab`              | `Tab`             |
+| Limpar Console       | `Ctrl + L`         | `Ctrl + L`        |
+
+::: callout-tip
+Para ver todos os atalhos disponíveis no `RStudio`, pressione:
+
+-   Windows/Linux: `Alt + Shift + K`;
+-   MacOS: `Option + Shift + K`.
+:::
+
+------------------------------------------------------------------------
+
+## R como calculadora
+
+Digite no script e execute linha por linha:
+
+```{r}
+8 + 4
+
+17 - 6
+
+6 * 8
+
+333 / 111
+
+5^2
+
+sqrt(81)
+
+log(100)
+
+```
+
+O `R` executa expressões e imprime o resultado quando nada é salvo em objeto.
+
+------------------------------------------------------------------------
+
+## Comentários
+
+Comentários começam com `#`.
+
+```{r}
+# Cálculo da média de três notas
+(8 + 7 + 9) / 3
+```
+
+Comentário pouco útil:
+
+```{r}
+# soma nota_1, nota_2 e nota_3 e divide por 3
+media <- (nota_1 + nota_2 + nota_3) / 3
+```
+
+Comentário mais útil:
+
+```{r}
+# Média simples usada como indicador inicial de desempenho
+media <- (nota_1 + nota_2 + nota_3) / 3
+```
+
+::: callout-tip
+-   Use comentários para explicar a intenção analítica, não para repetir mecanicamente o código;
+-   Seu eu-futuro agradecerá seu eu-passado por um código bem documentado.
+:::
+
+------------------------------------------------------------------------
+
+## Criando objetos
+
+Objetos guardam valores para uso posterior.
+
+```{r}
+nota_1 <- 8
+nota_2 <- 7
+nota_3 <- 9
+
+media <- (nota_1 + nota_2 + nota_3) / 3
+
+media
+```
+
+::: callout-tip
+Leia `<-` como “recebe”.
+:::
+
+```{r}
+w <- c(1, 2, 3)
+x <- c(1, 2, 3)
+y <- x
+z = x
+
+lobstr::obj_addr(w)
+lobstr::obj_addr(x)
+lobstr::obj_addr(y)
+lobstr::obj_addr(z)
+```
+
+------------------------------------------------------------------------
+
+## `<-` versus `=` em R
+
+Em R, os dois símbolos podem aparecer em atribuições, mas eles não são usados da mesma forma no dia a dia.
+
+-   `<-` é o operador mais usado para atribuir valores a objetos;
+-   `=` também pode atribuir, mas aparece com muita frequência para nomear argumentos de funções;
+-   Por clareza, em scripts, prefira usar `<-` para criar objetos;
+-   Reserve `=` principalmente para dentro de funções.
+
+```{r}
+x <- 10; y <- 20
+mean(x = c(1, 2, 3, 4))
+```
+
+-   `x <- 10` significa: `x` recebe `10`;
+-   Em `mean(x = c(1, 2, 3, 4))`, o `=` está associando um valor ao argumento x da função.
+
+------------------------------------------------------------------------
+
+## Environment
+
+Depois de executar os comandos:
+
+```{r}
+nota_1 <- 8
+nota_2 <- 7
+nota_3 <- 9
+
+media <- (nota_1 + nota_2 + nota_3) / 3
+
+media
+```
+
+verifique o painel Environment.
+
+::: callout-question
+-   Quais objetos aparecem?
+-   Quais valores foram armazenados?
+:::
+
+Comandos úteis:
+
+```{r}
+ls()
+rm(list = ls())
+```
+
+------------------------------------------------------------------------
+
+## Nomes importam
+
+Execute:
+
+```{r}
+r_rocks <- 2^3
+
+r_rocks
+r_rock
+R_rocks
+```
+
+-   O `R` diferencia maiúsculas e minúsculas;
+-   `r_rocks`, `r_rock` e `R_rocks` são nomes diferentes;
+-   Erros pequenos geram objetos não encontrados.
+
+::: callout-tip
+-   Use nomes claros e descritivos;
+-   Use `snake_case`;
+-   Evite espaços e acentos;
+-   Evite sobrescrever nomes de funções.
+:::
+
+------------------------------------------------------------------------
+
+## Bons nomes de objetos
+
+Evite:
+
+```{r}
+x <- 1000
+a <- 250
+coisa <- x - a
+```
+
+Prefira:
+
+```{r}
+receita_total <- 1000
+custo_total <- 250
+lucro_total <- receita_total - custo_total
+```
+
+::: callout-tip
+Em programação, nomes são parte da análise. Um bom nome reduz erro e melhora leitura.
+:::
+
+------------------------------------------------------------------------
+
+## Vetores
+
+Um vetor reúne valores do mesmo tipo.
+
+```{r}
+notas <- c(8, 7, 9, 6, 10)
+
+notas
+class(notas)
+length(notas)
+mean(notas)
+median(notas)
+sd(notas)
+
+conceito <- c("B", "B", "A", "C", "A")
+
+conceito
+class(conceito)
+length(conceito)
+table(conceito)
+```
+
+A função `c()` combina valores.
+
+------------------------------------------------------------------------
+
+## Operações vetorizadas
+
+O `R` aplica operações a todos os elementos do vetor:
+
+```{r}
+notas <- c(8, 7, 9, 6, 10)
+
+notas + 1
+notas * 2
+notas >= 7
+```
+
+Em análise de dados muitas operações dispensam repetição manual.
+
+**Acessando elementos de um vetor**
+
+```{r}
+notas <- c(8, 7, 9, 6, 10)
+
+notas[1]; notas[3]
+notas[c(1, 3, 5)]
+notas[notas >= 7]
+```
+
+::: callout-note
+Colchetes \[\] servem para acessar partes de um objeto.
+:::
+
+------------------------------------------------------------------------
+
+## Tipos de vetores
+
+```{r}
+idades <- c(18, 21, 25, 30)
+nomes <- c("Ana", "Bruno", "Carla", "Diego")
+aprovado <- c(TRUE, TRUE, FALSE, TRUE)
+
+idades; nomes; aprovado
+```
+
+Números, textos e lógicos são tipos diferentes de informação.
+
+```{r}
+typeof(idades)
+typeof(nomes)
+typeof(aprovado)
+is.numeric(idades)
+is.character(nomes)
+is.logical(aprovado)
+```
+
+::: callout-warning
+`TRUE` é valor lógico. `"TRUE"` é texto. Para o `R`, eles não são a mesma coisa.
+:::
+
+::: callout-tip
+Antes de calcular, verifique se a variável está no tipo correto.
+:::
+
+------------------------------------------------------------------------
+
+## Coerção
+
+Misturar tipos pode produzir conversões automáticas.
+
+```{r}
+mistura <- c(10, "20", TRUE)
+
+mistura
+class(mistura)
+```
+
+::: callout-warning
+Quando há texto no vetor, o `R` tende a converter tudo para texto.
+:::
+
+------------------------------------------------------------------------
+
+## Listas
+
+Vetores guardam valores do mesmo tipo.
+
+Listas são mais flexíveis: podem guardar objetos de tipos diferentes.
+
+```{r}
+aluno <- list(
+  nome = "Ana",
+  idade = 19,
+  notas = c(8.5, 7.0, 9.2),
+  aprovado = TRUE
+)
+
+aluno
+```
+
+Uma lista pode guardar:
+
+-   Números, textos, valores lógicos;
+-   Vetores, tabelas;
+-   Modelos, resultados de uma análise.
+
+------------------------------------------------------------------------
+
+## Inspecionando uma lista
+
+```{r}
+str(aluno)
+names(aluno)
+length(aluno)
+class(aluno)
+```
+
+::: callout-tip
+Para listas, `str()` costuma ser mais informativo do que apenas imprimir o objeto.
+:::
+
+------------------------------------------------------------------------
+
+## Acessando elementos de uma lista
+
+Há três formas comuns de acessar elementos.
+
+```{r}
+aluno["nome"]; aluno[["nome"]]; aluno$nome
+```
+
+A diferença é importante:
+
+```{r}
+class(aluno["notas"])
+class(aluno[["notas"]])
+```
+
+-   `aluno["notas"]` devolve uma lista menor;
+-   `aluno[["notas"]]` devolve o objeto guardado dentro da lista;
+-   `aluno$notas` acessa o elemento pelo nome.
+
+```{r}
+aluno$notas
+mean(aluno$notas)
+```
+
+::: callout-warning
+Use `[[]]` ou `$` quando quiser trabalhar com o conteúdo guardado dentro da lista.
+:::
+
+------------------------------------------------------------------------
+
+## Listas podem guardar resultados de análise
+
+Uma lista pode organizar vários resultados relacionados.
+
+```{r}
+notas <- c(8, 7, 9, 6, 10)
+
+resultado_notas <- list(
+  dados = notas,
+  media = mean(notas),
+  mediana = median(notas),
+  desvio_padrao = sd(notas),
+  aprovado = notas >= 7
+)
+
+resultado_notas
+```
+
+Acessando resultados:
+
+```{r}
+resultado_notas$media
+resultado_notas$desvio_padrao
+resultado_notas$aprovado
+```
+
+::: callout-note
+Listas são úteis para guardar, em um só objeto, dados, estatísticas, gráficos, modelos e outras saídas.
+:::
+
+------------------------------------------------------------------------
+
+## Boas práticas com listas
+
+Use listas quando os elementos forem diferentes entre si.
+
+```{r}
+analise <- list(
+  pergunta = "Qual é a média das notas?",
+  dados = c(8, 7, 9, 6, 10),
+  metodo = "média aritmética",
+  resultado = mean(c(8, 7, 9, 6, 10))
+)
+
+analise
+```
+
+Boas práticas:
+
+-   Dê nomes claros aos elementos;
+-   Use listas para organizar resultados relacionados;
+-   Use `str()` para entender a estrutura;
+-   Evite listas muito profundas no início;
+-   Não use lista quando um vetor ou data frame resolver melhor.
+
+------------------------------------------------------------------------
+
+## Dados faltantes
+
+Em `R`, dados ausentes são representados por `NA`.
+
+```{r}
+notas_com_na <- c(8, 7, NA, 6, 10)
+
+mean(notas_com_na)
+mean(notas_com_na, na.rm = TRUE)
+
+is.na(notas_com_na)
+sum(is.na(notas_com_na))
+```
+
+::: callout-warning
+`NA` representa ausência de informação. Por isso, comparações diretas com `NA` não funcionam como comparações comuns.
+:::
+
+```{r}
+NA == NA
+is.na(NA)
+```
+
+------------------------------------------------------------------------
+
+## Chamando funções
+
+Estrutura geral:
+
+```{r}
+nome_da_funcao(argumento_1, argumento_2)
+```
+
+Exemplo:
+
+```{r}
+rep(x = "R", times = 5)
+mean(x = notas, na.rm = TRUE)
+```
+
+Use `?nome_da_funcao` para abrir a documentação.
+
+::: callout-warning
+A posição de argumentos não nomeados importa.
+:::
+
+```{r}
+seq(from = 1, to = 10)
+seq(to = 10, from = 1)
+seq(1, 10)
+seq(10, 1)
+```
+
+------------------------------------------------------------------------
+
+## Ajuda no `RStudio`
+
+Teste:
+
+```{r}
+?mean
+?summary
+?data.frame
+```
+
+-   **Description**: o que a função faz;
+-   **Usage**: como a função é chamada;
+-   **Arguments**: quais argumentos ela recebe;
+-   **Value**: o que ela devolve;
+-   **Examples**: exemplos de uso.
+
+Outros comandos úteis: `args(mean)` e `example(mean)`.
+
+::: callout-tip
+Aprender a ler a documentação é parte da autonomia em `R`.
+:::
+
+------------------------------------------------------------------------
+
+## De vetores e listas para data frame
+
+Um data frame organiza vetores em colunas.
+
+```{r}
+alunos <- data.frame(
+  nome = c("Ana", "Bruno", "Carla", "Diego"),
+  idade = c(19, 22, 20, 21),
+  nota = c(8.5, 7.0, 9.2, 6.8),
+  aprovado = c(TRUE, TRUE, TRUE, FALSE)
+)
+alunos
+```
+
+::: callout-question
+-   Qual é a unidade de observação?
+-   Quais variáveis são quantitativas? E quais variáveis são qualitativas?
+-   Qual variável poderia ser uma resposta em uma análise?
+:::
+
+::: callout-note
+Um `data.frame` é uma lista em que as colunas (elementos) devem ter o mesmo comprimento.
+:::
+
+------------------------------------------------------------------------
+
+## O que é uma base tabular?
+
+Em uma base organizada:
+
+-   Cada linha é uma observação;
+-   Cada coluna é uma variável;
+-   Cada célula contém um valor;
+-   Cada tabela representa uma unidade analítica bem definida.
+
+No exemplo alunos, a unidade de observação é o estudante.
+
+::: callout-note
+Essa estrutura se aproxima do princípio de `tidy data`: linhas como observações, colunas como variáveis e células como valores.
+:::
+
+------------------------------------------------------------------------
+
+## Inspeção inicial de dados
+
+Execute:
+
+```{r}
+head(alunos)
+tail(alunos)
+dim(alunos)
+nrow(alunos)
+ncol(alunos)
+names(alunos)
+str(alunos)
+summary(alunos)
+anyNA(alunos)
+colSums(is.na(alunos))
+duplicated(alunos)
+sum(duplicated(alunos))
+```
+
+::: callout-important
+A inspeção inicial responde: o que tenho, em que formato, com quais variáveis?
+
+Ela não serve para “analisar tudo”.
+
+Serve para detectar estrutura, tipos, dimensões, nomes, faltantes e inconsistências.
+:::
+
+------------------------------------------------------------------------
+
+## Base nativa: `mtcars`
+
+O `R` já vem com algumas bases.
+
+```{r}
+data(mtcars)
+```
+
+Antes de analisar uma base, consulte sua documentação: `?mtcars`
+
+::: callout-question
+-   Qual é a unidade de observação?
+-   O que cada linha representa e o que cada coluna mede?
+-   Quais variáveis parecem quantitativas?
+-   Quais variáveis parecem categóricas?
+:::
+
+```{r}
+head(mtcars)
+dim(mtcars)
+names(mtcars)
+str(mtcars)
+summary(mtcars)
+```
+
+------------------------------------------------------------------------
+
+## Abrindo a base em modo planilha
+
+```{r}
+View(mtcars)
+```
+
+-   Use `View()` para olhar, não para editar;
+-   A análise deve continuar no script.
+
+::: callout-warning
+Não altere dados manualmente na janela do `View()`.
+
+Transformações devem ser feitas por código.
+:::
+
+------------------------------------------------------------------------
+
+## Selecionando colunas com `$` e `[]`
+
+O operador `$` acessa uma variável dentro de um data frame.
+
+```{r}
+mtcars$mpg
+mtcars$cyl
+mtcars$hp
+
+mean(mtcars$mpg)
+table(mtcars$cyl)
+```
+
+O operador `[]` pode acessar linhas e colunas em diferentes combinações.
+
+```{r}
+mtcars[1, ]
+mtcars[, "mpg"]
+mtcars[1:5, c("mpg", "cyl", "hp")]
+```
+
+::: callout-tip
+Use `names(mtcars)` para consultar os nomes das colunas.
+:::
+
+------------------------------------------------------------------------
+
+## Criando novos objetos a partir da base
+
+```{r}
+media_mpg <- mean(mtcars$mpg)
+mediana_mpg <- median(mtcars$mpg)
+desvio_mpg <- sd(mtcars$mpg)
+
+media_mpg; mediana_mpg; desvio_mpg
+summary(mtcars$mpg)
+```
+
+::: callout-question
+O que cada medida diz sobre a eficiência de combustível dos carros?
+:::
+
+::: callout-tip
+Objetos intermediários ajudam a documentar a análise e reaproveitar resultados.
+:::
+
+------------------------------------------------------------------------
+
+## Primeira pergunta analítica
+
+::: callout-question
+Carros com mais cilindros tendem a ter menor eficiência de combustível?
+:::
+
+Na base `mtcars`, a variável `mpg` indica milhas por galão.
+
+-   Maior `mpg` significa maior eficiência;
+-   Menor `mpg` significa menor eficiência.
+
+Primeiro passo: sumário por grupo.
+
+```{r}
+aggregate(mpg ~ cyl, data = mtcars, FUN = mean)
+aggregate(mpg ~ cyl, data = mtcars, FUN = median)
+aggregate(mpg ~ cyl, data = mtcars, FUN = length)
+```
+
+::: callout-question
+O que acontece com `mpg` quando `cyl` aumenta?
+:::
+
+------------------------------------------------------------------------
+
+## Primeiro gráfico exploratório 1/2
+
+```{r}
+#| eval: true
+#| fig-align: center
+#| fig-width: 7
+#| fig-height: 5
+
+par(cex.main = 1.7, cex.lab  = 1.5, cex.axis = 1.25, mar = c(5, 5, 4, 2))
+plot(
+  x = mtcars$wt, y = mtcars$mpg,
+  xlab = "Peso", ylab = "Milhas por galão",
+  main = "Eficiência e peso dos carros",
+  pch = 19
+)
+abline(lm(mpg ~ wt, data = mtcars))
+```
+
+::: callout-warning
+A inspeção visual não substitui análise formal, mas ajuda a enxergar padrões.
+:::
+
+------------------------------------------------------------------------
+
+## Primeiro gráfico exploratório 1/2
+
+```{r}
+#| echo: false
+#| eval: true
+#| fig-align: center
+#| fig-width: 7
+#| fig-height: 5
+
+par(cex.main = 1.7, cex.lab  = 1.5, cex.axis = 1.25, mar = c(5, 5, 4, 2))
+plot(
+  x = mtcars$wt, y = mtcars$mpg,
+  xlab = "Peso", ylab = "Milhas por galão",
+  main = "Consumo e peso dos carros",
+  pch = 19
+)
+abline(lm(mpg ~ wt, data = mtcars))
+```
+
+::: callout-question
+-   A relação parece positiva ou negativa?
+-   Carros mais pesados tendem a ter maior ou menor `mpg`?
+-   A relação visual prova causalidade?
+:::
+
+::: callout-important
+Gráficos exploratórios sugerem padrões, mas não provam causalidade.
+:::
+
+------------------------------------------------------------------------
+
+## Salvando uma saída
+
+Crie a pasta para os outputs, se ainda não existirem:
+
+```{r}
+dir.create("outputs", showWarnings = FALSE)
+dir.create("outputs/figures", recursive = TRUE, showWarnings = FALSE)
+```
+
+Salve um resumo e um gráfico:
+
+```{r}
+resumo_cilindros <- aggregate(mpg ~ cyl, data = mtcars, FUN = mean)
+
+write.csv(
+  resumo_cilindros,
+  "outputs/tables/resumo_cilindros.csv",
+  row.names = FALSE
+)
+
+png("outputs/figures/grafico_peso_mpg.png")
+plot(
+  x = mtcars$wt,
+  y = mtcars$mpg,
+  xlab = "Peso",
+  ylab = "Milhas por galão",
+  main = "Consumo e peso dos carros"
+)
+dev.off()
+```
+
+::: callout-tip
+Saídas importantes devem ser recriáveis pelo script, não salvas manualmente por print da tela.
+:::
+
+------------------------------------------------------------------------
+
+## Salvando dados no projeto
+
+Crie a pasta `data`:
+
+```{r}
+dir.create("data", showWarnings = FALSE)
+```
+
+Salve uma cópia da base:
+
+```{r}
+write.csv(
+  mtcars,
+  "data/mtcars.csv",
+  row.names = FALSE
+)
+```
+
+Leia de volta:
+
+```{r}
+mtcars_importada <- read.csv("data/mtcars.csv")
+
+head(mtcars_importada)
+```
+
+------------------------------------------------------------------------
+
+## Mini-laboratório 1
+
+No script `01-primeiros-comandos.R`, faça:
+
+1.  crie três objetos: receita, despesa, saldo;
+2.  crie um vetor chamado notas;
+3.  calcule média, mediana e desvio padrão;
+4.  crie um data.frame com nome, idade e nota de quatro pessoas;
+5.  inspecione o data.frame com pelo menos cinco funções.
+
+------------------------------------------------------------------------
+
+## Mini-laboratório 2
+
+Crie um novo script: `scripts/02-inspecao-mtcars.R`
+
+Nele, responda em código:
+
+1.  Quantas linhas e colunas há em mtcars?
+2.  Quais são os nomes das variáveis?
+3.  Qual é a média de mpg?
+4.  Quantos carros há por número de cilindros?
+5.  Qual é o mpg médio por cilindro?
+
+------------------------------------------------------------------------
+
+## Debugging guiado
+
+Execute e corrija:
+
+```{r}
+media <- mean(mtcars$MPG)
+
+aggregate(mpg ~ Cyl, data = mtcars, FUN = mean)
+
+meu objeto <- 10
+
+notas <- c(8, 7, 9
+```
+
+::: callout-warning
+Leia a mensagem de erro. Ela geralmente aponta o tipo do problema.
+:::
+
+------------------------------------------------------------------------
+
+## Erros comuns
+
+| Erro                      | Causa provável                            |
+|---------------------------|-------------------------------------------|
+| `object not found`        | nome digitado errado ou objeto não criado |
+| `unexpected symbol`       | espaço indevido em nome de objeto         |
+| `unexpected end of input` | parêntese ou aspas não fechados           |
+| `resultado NA`            | dados faltantes sem na.rm = TRUE          |
+
+------------------------------------------------------------------------
+
+## Organização de arquivos
+
+Evite nomes como: `final.R`, `final_agora_vai.R`, `analise nova.R`.
+
+Prefira: `01-primeiros-comandos.R`, `02-inspecao-mtcars.R`.
+
+**Regras práticas:**
+
+-   Use nomes em minúsculas;
+-   Evite espaços e acentos;
+-   Use hífen ou underscore;
+-   Use prefixos numéricos quando houver ordem;
+-   Escolha nomes que indiquem conteúdo e função.
+
+::: callout-tip
+Nomes bons informam ordem, conteúdo e finalidade do arquivo.
+:::
+
+------------------------------------------------------------------------
+
+## Teste de reprodutibilidade 1/2
+
+Agora faça:
+
+1.  salve todos os scripts;
+2.  limpe o Environment;
+3.  reinicie a sessão do R;
+4.  rode o script do início ao fim;
+5.  verifique se os objetos e arquivos são recriados.
+
+No RStudio:
+
+``` text
+Session > Restart R
+```
+
+------------------------------------------------------------------------
+
+## Teste de reprodutibilidade 2/2
+
+Agora, execute:
+
+```{r}
+source("scripts/01-primeiros-comandos.R")
+source("scripts/02-inspecao-mtcars.R")
+```
+
+Verifique se os arquivos foram criados:
+
+```{r}
+file.exists("data/mtcars.csv")
+file.exists("outputs/tables/resumo_cilindros.csv")
+```
+
+::: callout-note
+Se só funciona com objetos antigos no Environment, ainda não está reproduzível.
+:::
+
+------------------------------------------------------------------------
+
+## Checklist final do projeto
+
+Ao final da aula, seu projeto deve ter:
+
+``` text
+aula03-primeiros-passos-r/
+├── aula03-primeiros-passos-r.Rproj
+├── scripts/
+│   ├── 01-primeiros-comandos.R
+│   └── 02-inspecao-mtcars.R
+├── data/
+│   └── mtcars.csv
+└── outputs/
+    ├── figures/
+    │   └── grafico_peso_mpg.png
+    └── tables/
+        └── resumo_cilindros.csv
+```
+
+Outra pessoa em outra máquina deve conseguir:
+
+-   Abrir o arquivo `.Rproj` e rodar os scripts em uma sessão limpa;
+-   Recriar `data/mtcars.csv` e `outputs/tables/resumo_cilindros.csv`;
+-   Entender o que foi feito lendo o código.
+
+------------------------------------------------------------------------
+
+## Síntese
+
+Hoje praticamos:
+
+-   RStudio como ambiente de trabalho;
+-   Scripts como registro da análise;
+-   Projetos como unidade de organização;
+-   Objetos, vetores e listas como estruturas básicas;
+-   Data frames como estrutura tabular;
+-   Inspeção inicial de dados;
+-   Caminhos relativos e reprodutibilidade.
+
+::: callout-note
+A ideia central não é apenas “usar `R`”, mas criar uma análise que possa ser entendida, executada e reproduzida.
+:::
+
+------------------------------------------------------------------------
+
+## Para entregar no fim da aula
+
+No Moodle, envie o conteúdo dos dois scripts:
+
+``` text
+01-primeiros-comandos.R
+02-inspecao-mtcars.R
+```
+
+Eles devem rodar em uma sessão limpa, dentro do projeto.
+
+::: callout-tip
+Critério principal: Qualquer pessoa deve conseguir reproduzir sua análise sem depender do seu Environment.
+:::
